@@ -1,4 +1,4 @@
-from src.embed_url import embed_url
+from src.vector_store import VectorStore
 
 urls = [
     "https://sourceallies.com",
@@ -12,4 +12,4 @@ urls = [
 ]
 
 for url in urls:
-    embed_url(url)
+    VectorStore.embed_data(url)

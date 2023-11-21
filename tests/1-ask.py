@@ -1,10 +1,21 @@
-from src.llm import llm_chain
-from src.get_vector_sources import get_vector_sources
-from datetime import datetime
+from src.llm import LLM
+from src.vector_store import VectorStore
+from time import time
+import sys
 
-print("Current sources")
-print(get_vector_sources())
-print(datetime.now())
-resp = llm_chain({"question": "Who were the Source Allies blackbelts in 2023?"})
-print(resp['answer'])
-print(datetime.now())
+print("-----------CURRENT AVAIALBLE SOURCES----------")
+print(VectorStore().get_sources())
+question = (
+    sys.argv[1]
+    if len(sys.argv) > 1
+    else "Who were the Source Allies blackbelts in 2023?"
+)
+print("-----------QUESTION----------")
+print(question)
+starttime = time()
+resp = LLM.get_chain()({"question": question})
+print("-----------ANSWER----------")
+print(resp["answer"])
+print("-----------USED SOURCES----------")
+print(list({d.metadata["source"] for d in resp["source_documents"]}))
+print(f"Seconds Taken: {time() - starttime}")
