@@ -62,18 +62,18 @@ def main():
             with st.spinner(
                 f'Finding an answer for "{st.session_state.query_input}"...'
             ):
-                st.session_state.result = LLM.get_chain()(
+                st.session_state.result = LLM.get_chain().invoke(
                     {"question": st.session_state.query_input}
                 )
             st.session_state.messages[1] = {
                 "role": "assistant",
-                "content": st.session_state.result["answer"],
+                "content": st.session_state.result["answer"].content,
             }
             sourcebody = "SOURCES:\n\n" + "\n\n".join(
                 list(
                     {
                         d.metadata["source"]
-                        for d in st.session_state.result["source_documents"]
+                        for d in st.session_state.result["context"]
                     }
                 )
             )
