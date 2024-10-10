@@ -55,20 +55,28 @@ def main():
 
     def query_submit():
         if st.session_state.query_input != "":
+            query = st.session_state.query_input
+            st.session_state.query_input = ""
             st.session_state.messages = [
-                {"role": "user", "content": st.session_state.query_input},
+                {"role": "user", "content": query},
                 {"role": "assistant", "content": "..."},
             ]
-            with st.spinner(
-                f'Finding an answer for "{st.session_state.query_input}"...'
-            ):
-                st.session_state.result = LLM.get_chain().invoke(
-                    {"question": st.session_state.query_input}
-                )
-            st.session_state.messages[1] = {
-                "role": "assistant",
-                "content": st.session_state.result["answer"].content,
+            update_messages()
+            st.session_state.result = {
+                "answer": "",
+                "context": []
             }
+            update_messages()
+            for resp in LLM.get_chain().stream({"question": query}):
+                if("answer" in resp):
+                    st.session_state.result["answer"] += resp["answer"].content
+                if("context" in resp):
+                    st.session_state.result["context"] = resp["context"]
+                st.session_state.messages[1] = {
+                    "role": "assistant",
+                    "content": st.session_state.result["answer"],
+                }
+                update_messages()
             sourcebody = "SOURCES:\n\n" + "\n\n".join(
                 list(
                     {
@@ -77,21 +85,25 @@ def main():
                     }
                 )
             )
-            print(sourcebody)
             st.session_state.messages.append(
                 {
                     "role": "assistant",
                     "content": sourcebody,
                 }
             )
-            st.session_state.query_input = ""
 
     st.text_input("Ask away!", key="query_input", on_change=query_submit)
 
     # Display chat messages
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(cleanMessage(message["content"]))
+    messages_container = st.empty()
+
+    def update_messages():
+        with messages_container.container():
+            for message in st.session_state.messages:
+                with st.chat_message(message["role"]):
+                    st.markdown(cleanMessage(message["content"]))
+
+    update_messages()
 
 def cleanMessage(message: str) -> str:
     return message.replace('$','\\$')
