@@ -3,7 +3,7 @@ from src.vector_store import VectorStore
 from time import time
 import sys
 
-print("-----------CURRENT AVAIALBLE SOURCES----------")
+print("-----------CURRENT AVAILABLE SOURCES----------")
 print(VectorStore().get_sources())
 question = (
     sys.argv[1]
@@ -13,9 +13,15 @@ question = (
 print("-----------QUESTION----------")
 print(question)
 starttime = time()
-resp = LLM.get_chain().invoke({"question": question})
+sources = []
 print("-----------ANSWER----------")
-print(resp["answer"].content)
+for resp in LLM.get_chain().stream({"question": question}):
+    if("answer" in resp):
+        print(resp["answer"].content, end="", flush=True)
+    if("context" in resp):
+        sources = resp["context"]
+
+print("")
 print("-----------USED SOURCES----------")
-print(list({d.metadata["source"] for d in resp["context"]}))
+print(list({d.metadata["source"] for d in sources}))
 print(f"Seconds Taken: {time() - starttime}")

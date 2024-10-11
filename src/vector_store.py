@@ -1,5 +1,5 @@
 from langchain.vectorstores.pgvector import PGVector
-from langchain.document_loaders import (
+from langchain_community.document_loaders import (
     DirectoryLoader,
     PyPDFLoader,
     UnstructuredURLLoader,
@@ -18,7 +18,7 @@ class VectorStore:
     _store: PGVector = None
     _db_connection: connection = None
 
-    def connection_info() -> dict[str, str]:
+    def connection_info():
         load_dotenv()
 
         return {
@@ -105,11 +105,11 @@ class VectorStore:
 
     @staticmethod
     def _get_pdf_docs(dir: str) -> list[Document]:
+        new_data = []
         already_indexed_sources = VectorStore.get_sources()
         # pdfs
         loader = DirectoryLoader(dir, glob="./*.pdf", loader_cls=PyPDFLoader)
         data = loader.load()
-        new_data = []
         for doc in data:
             if doc.metadata["source"] not in already_indexed_sources:
                 new_data.append(doc)
@@ -120,7 +120,6 @@ class VectorStore:
             'content_key': 'content'
         })
         data = loader.load()
-        new_data = []
         for doc in data:
             if doc.metadata["source"] not in already_indexed_sources:
                 new_data.append(doc)

@@ -1,15 +1,17 @@
 
-version: '3.7'
 services:
-    postgres:
-        image: ankane/pgvector
-        restart: always
-        environment:
-          - POSTGRES_USER=postgres
-          - POSTGRES_PASSWORD=postgres
-        ports:
-          - '5432:5432'
-        volumes: 
-          - ./postgres-data:/var/lib/postgresql/data
-          # copy the sql script to enable vector extension
-          - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes: 
+      - ./postgres-data:/var/lib/postgresql/data
+
+  phoenix:
+    image: arizephoenix/phoenix
+    ports:
+      - 6006:6006

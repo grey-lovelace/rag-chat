@@ -14,22 +14,28 @@ This app is meant to showcase how RAG solutions are great for adding data and co
 You will need a few things for this.
 
 - Python
-- Poetry
-- Docker
-- An OpenAI API Key
+- [Poetry](https://python-poetry.org/)
+- [Docker](https://www.docker.com/)
+- AWS profile configured locally or an OpenAI API Key
 
 To start:
 
-- Create a `.env` file with contents `OPENAI_API_KEY=YOUR_API_KEY_HERE`, replacing YOUR_API_KEY_HERE with your API key.
 - Run `poetry install` to install your dependencies if you have not already.
-- Run `docker compose up -d` to start our containerized postgres DB.
+- If using aws bedrock
+  - Get your profile keys locally and create a `.env` file with contents `AWS_PROFILE=YOUR_PROFILE_NAME_HERE`, replacing YOUR_PROFILE_NAME_HERE with your profile name.
+  - Make sure your AWS account has the bedrock models you want to use enabled for your region.
+- If using openai
+  - Create a `.env` file with contents `OPENAI_API_KEY=YOUR_API_KEY_HERE`, replacing YOUR_API_KEY_HERE with your API key.
+  - Go to the `llm.py` and `embedding_model.py` files and uncomment the openai portions and comment out the aws bedrock portions.
+- Run `docker compose up -d` to start our containerized postgres DB and Phoenix instance
   - Make sure this starts up properly. You can start it without the flag in a different terminal instead if you wish.
 - Run `poetry run streamlit run src/app.py`
-  - This should start the app locally pointed to your containerized postgresd vector store, and open your broswer to the hosted web UI.
+  - This should start the app locally pointed to your containerized postgres vector store, and open your browser to the hosted web UI.
+- Optional: You can also visit `http://localhost:6006` to see your containerized Phoenix instance that is logging your traces.
 
 ## The App
 
-From the UI you will be able to dynamically add and remove data sources to your embedded vector store by simply prioviding a url, or a local path to a directory that contains PDFs. 
+From the UI you will be able to dynamically add and remove data sources to your embedded vector store by simply providing a url, or a local path to a directory that contains PDFs. 
 
 ![Load data](media/load_data_source.gif)
 
